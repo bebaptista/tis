@@ -111,22 +111,25 @@ function getFormattedTable() {
 	htmlString += '</tr></thead>';
 
 	return htmlString;
-}*/
-
+}*/	
 var xmlhttp = new XMLHttpRequest();
-		
+
 		function processarRequisicao() {
+			
 			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 				var a = JSON.parse (xmlhttp.responseText);
 				var str = "";
 				var num = a.restify.rows.length;
-				var link = "";
+				var codigo = "", nome = "", email = "", telefone = "";
 				str = "<center><table class='table-bordered' border='2'></center><tr><th>CODIGO</th><th>Nome</th><th>Email</th><th>Data do Cadastro</th><th>Telefone</th></tr>"
 				for (j = 0; j < num; j++) {
-					link = a.restify.rows[j].values.codigo.value;
-					str = str + "<tr><td>"+ a.restify.rows[j].values.codigo.value + "</td>"+ "<td>" + a.restify.rows[j].values.nome.value +"</td>"+ "<td>" + a.restify.rows[j].values.email.value +"</td>"+ "<td>" + a.restify.rows[j].values.data_cadastro.value +"</td>"+ "<td>" + a.restify.rows[j].values.telefone.value +"</td>";
-					str = str + '<td><button class="btn btn-warning" onclick="Modifica(' + link + ');">Editar</button></td>';
-					str = str + '<td><button class="btn btn-danger" onclick="ApagaRegistro(' + link + ');">Deletar</button></td></tr>';
+					codigo = a.restify.rows[j].values.codigo.value;
+					nome = a.restify.rows[j].values.nome.value;
+					email = a.restify.rows[j].values.email.value;
+					telefone = a.restify.rows[j].values.telefone.value;
+					str = str + "<tr><td>"+ codigo + "</td>"+ "<td>" + nome +"</td>"+ "<td>" + email +"</td>"+ "<td>" + a.restify.rows[j].values.data_cadastro.value +"</td>"+ "<td>" + telefone +"</td>";
+					str = str + '<td><button class="btn btn-warning" onclick="Modifica(\''+codigo+'\', \''+nome+'\', \''+email+'\', \''+telefone+'\');">Editar</button></td>';
+					str = str + "<td><button class='btn btn-danger' onclick='ApagaRegistro(\"" + codigo + "\");'>Deletar</button></td></tr>";
 				}
 				str = str + "</table>";
 				document.getElementById("secao").innerHTML = str;
@@ -144,7 +147,7 @@ var xmlhttp = new XMLHttpRequest();
 				var xmlhttp = new XMLHttpRequest();
 			
 				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4) {  //&& xmlhttp.status==200) {               
+					if (xmlhttp.readyState==4 && xmlhttp.status==200) {               
 						document.getElementById("secao").innerHTML = xmlhttp.responseText;
 					}
 				}
@@ -156,19 +159,22 @@ var xmlhttp = new XMLHttpRequest();
 			}
 		}
 		
-		function ApagaRegistro(link){
+		function ApagaRegistro(codigo){
 			if(confirm("Deseja apagar?")==true) {
 				var xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4) {  //&& xmlhttp.status==200) {               
+					if (xmlhttp.readyState==4 && xmlhttp.status==200) {               
 						document.getElementById("secao").innerHTML = xmlhttp.responseText;
 					}
 				}
-				if(typeof link == 'number'){
+				var link = "http://www.smartsoft.com.br/webservice/restifydb/Employees/diw_cadastro/";
+				var j=codigo;
+				link = link + j;
+				if(typeof codigo == 'number'){
 					var j = "";
-					j=link.toString();
+					j=codigo.toString();
 				}
-            	xmlhttp.open("DELETE", "http://www.smartsoft.com.br/webservice/restifydb/Employees/diw_cadastro/"+j, true);
+            	xmlhttp.open("DELETE", link, true);
 				xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');            
 				xmlhttp.send();		
 			}
@@ -180,28 +186,31 @@ var xmlhttp = new XMLHttpRequest();
 			document.getElementById("secao").innerHTML = str;	
 		}
 		
-		function Modifica(link) {
+		function Modifica(codigo,nome,email,telefone) {
 			var str = "";
-			str = '<form name="formulario2" method="POST" onSubmit="ModificaRegistro(' + link + ')"><input id="nome" type="text" name="nome" placeholder="Nome"><input id="email" type="text" name="email" placeholder="Email"><input id="telefone" type="text" name="telefone" placeholder="Telefone"><input type="submit" value="Enviar"></form>'
+			str = '<form name="formulario2" method="POST" onSubmit="ModificaRegistro(\''+codigo+'\')"><input id="nome" type="text" name="nome" value='+nome+'><input id="email" type="text" name="email" value='+email+'><input id="telefone" type="text" name="telefone" value='+telefone+'><input type="submit" value="Enviar"></form>'
 			document.getElementById("secao").innerHTML = str;
 		}
 		
-		function ModificaRegistro(link) {
+		function ModificaRegistro(codigo) {
 			if(confirm("Deseja modificar?")==true) {
 				var xmlhttp = new XMLHttpRequest();
 			
 				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4) {  //&& xmlhttp.status==200) {               
+					if (xmlhttp.readyState==4 && xmlhttp.status==200) {               
 					document.getElementById("secao").innerHTML = xmlhttp.responseText;
 					}
 				}
-				if(typeof link == 'number'){
+				var link = "http://www.smartsoft.com.br/webservice/restifydb/Employees/diw_cadastro/";
+				var j=codigo;
+				link = link + j;
+				if(typeof codigo == 'number'){
 					var j = "";
-					j=link.toString();
+					j=codigo.toString();
 				}
 				var d = new Date();
     			var timedate = d.toISOString();
-            	xmlhttp.open("PUT", "http://www.smartsoft.com.br/webservice/restifydb/Employees/diw_cadastro/"+j, true);
+            	xmlhttp.open("PUT", link, true);
 				xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');            
 				xmlhttp.send('_data={"nome":"'+document.getElementById('nome').value+'","email":"'+document.getElementById('email').value+'","data_cadastro":"'+timedate+'","telefone":"'+document.getElementById('telefone').value +'"}');
 			}
